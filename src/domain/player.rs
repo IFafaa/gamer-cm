@@ -1,19 +1,25 @@
-use chrono::{DateTime, Utc};
+use serde::Serialize;
+use time::PrimitiveDateTime;
 
+use crate::shared::date_time::DateTime;
+
+#[derive(Serialize)]
 pub struct Player {
     pub id: i32,
     pub nickname: String,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
+    pub community_id: i32,
+    pub created_at: PrimitiveDateTime,
+    pub updated_at: PrimitiveDateTime,
 }
 
 impl Player {
-    pub fn new(nickname: String) -> Self {
+    pub fn new(nickname: String, community_id: i32) -> Self {
         Player {
             id: 0,
             nickname,
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
+            community_id,
+            created_at: DateTime::now(),
+            updated_at: DateTime::now(),
         }
     }
 }
