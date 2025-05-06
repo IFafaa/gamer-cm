@@ -4,21 +4,22 @@ use crate::domain::community::{Community, CommunityRepository};
 use std::sync::Arc;
 
 pub struct GetCommunitiesUseCase<R: CommunityRepository> {
-    repository: Arc<R>,
+    community_repository: Arc<R>,
 }
 
 impl<R: CommunityRepository> GetCommunitiesUseCase<R> {
-    pub fn new(repository: Arc<R>) -> Self {
-        Self { repository }
+    pub fn new(community_repository: Arc<R>) -> Self {
+        Self {
+            community_repository,
+        }
     }
 
     pub async fn execute(&self) -> Result<Vec<Community>, StatusCode> {
         let communities = self
-            .repository
+            .community_repository
             .get_all()
             .await
             .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
-
 
         if communities.is_empty() {
             Err(StatusCode::NOT_FOUND)

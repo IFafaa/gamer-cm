@@ -23,3 +23,9 @@ impl Player {
         }
     }
 }
+
+#[async_trait::async_trait]
+pub trait PlayerRepository: Send + Sync {
+    async fn insert(&self, player: &Player) -> anyhow::Result<()>;
+    async fn exists(&self, name: String, community_id: i32) -> anyhow::Result<bool>;
+}

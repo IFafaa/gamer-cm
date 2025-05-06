@@ -7,12 +7,12 @@ use crate::{
 use std::sync::Arc;
 
 pub struct CreateCommunityUseCase<R: CommunityRepository> {
-    repository: Arc<R>,
+    community_repository: Arc<R>,
 }
 
 impl<R: CommunityRepository> CreateCommunityUseCase<R> {
-    pub fn new(repository: Arc<R>) -> Self {
-        Self { repository }
+    pub fn new(community_repository: Arc<R>) -> Self {
+        Self { community_repository }
     }
 
     pub async fn execute(&self, dto: CreateCommunityDto) -> Result<(), StatusCode> {
@@ -21,7 +21,7 @@ impl<R: CommunityRepository> CreateCommunityUseCase<R> {
         }
 
         let already_exists = self
-            .repository
+            .community_repository
             .exists(dto.name.clone())
             .await
             .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
@@ -30,7 +30,7 @@ impl<R: CommunityRepository> CreateCommunityUseCase<R> {
         }
 
         let community = Community::new(dto.name);
-        self.repository
+        self.community_repository
             .insert(&community)
             .await
             .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
