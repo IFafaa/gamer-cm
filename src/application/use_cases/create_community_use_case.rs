@@ -12,28 +12,40 @@ pub struct CreateCommunityUseCase<R: CommunityRepository> {
 
 impl<R: CommunityRepository> CreateCommunityUseCase<R> {
     pub fn new(community_repository: Arc<R>) -> Self {
-        Self { community_repository }
+        Self {
+            community_repository,
+        }
     }
 
-    pub async fn execute(&self, dto: CreateCommunityDto) -> Result<(), StatusCode> {
+    pub async fn execute(&self, dto: CreateCommunityDto) -> Result<(), (StatusCode, String)> {
         if dto.name.is_empty() {
-            return Err(StatusCode::BAD_REQUEST);
+            return Err((StatusCode::BAD_REQUEST, "Invalid input".to_string()));
         }
 
         let already_exists = self
             .community_repository
             .exists(dto.name.clone())
             .await
-            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+            .map_err(|_| {
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "Internal server error".to_string(),
+                )
+            })?;
         if already_exists {
-            return Err(StatusCode::CONFLICT);
+            return Err((StatusCode::CONFLICT, "Community already exists".to_string()));
         }
 
         let community = Community::new(dto.name);
         self.community_repository
             .insert(&community)
             .await
-            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+            .map_err(|_| {
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "Internal server error".to_string(),
+                )
+            })?;
         Ok(())
     }
 }

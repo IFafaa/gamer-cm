@@ -14,15 +14,16 @@ impl<R: CommunityRepository> GetCommunitiesUseCase<R> {
         }
     }
 
-    pub async fn execute(&self) -> Result<Vec<Community>, StatusCode> {
-        let communities = self
-            .community_repository
-            .get_all()
-            .await
-            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    pub async fn execute(&self) -> Result<Vec<Community>, (StatusCode, String)> {
+        let communities = self.community_repository.get_all().await.map_err(|_| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "Internal Server Error".to_string(),
+            )
+        })?;
 
         if communities.is_empty() {
-            Err(StatusCode::NOT_FOUND)
+            Err((StatusCode::NOT_FOUND, "No communities found".to_string()))
         } else {
             Ok(communities)
         }

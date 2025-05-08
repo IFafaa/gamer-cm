@@ -33,7 +33,7 @@ pub fn community_routes() -> Router<AppState> {
 async fn create_community(
     State(state): State<AppState>,
     Json(dto): Json<CreateCommunityDto>,
-) -> Result<(), StatusCode> {
+) -> Result<(), (StatusCode, String)> {
     let community_repository = PgCommunityRepository::new(state.db.clone());
     let use_case = CreateCommunityUseCase::new(Arc::new(community_repository));
 
@@ -42,15 +42,11 @@ async fn create_community(
 
 async fn get_communities(
     State(state): State<AppState>,
-) -> Result<Json<Vec<Community>>, StatusCode> {
+) -> Result<Json<Vec<Community>>, (StatusCode, String)> {
     let community_repository = PgCommunityRepository::new(state.db.clone());
     let use_case = GetCommunitiesUseCase::new(Arc::new(community_repository));
 
-    use_case
-        .execute()
-        .await
-        .map(Json)
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+    use_case.execute().await.map(Json)
 }
 
 async fn add_player_into_community(
