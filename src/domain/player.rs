@@ -10,6 +10,7 @@ pub struct Player {
     pub community_id: i32,
     pub created_at: PrimitiveDateTime,
     pub updated_at: PrimitiveDateTime,
+    pub enabled: bool,
 }
 
 impl Player {
@@ -20,6 +21,7 @@ impl Player {
             community_id,
             created_at: DateTime::now(),
             updated_at: DateTime::now(),
+            enabled: true,
         }
     }
 }

@@ -28,7 +28,7 @@ impl PlayerRepository for PgPlayerRepository {
 
     async fn exists(&self, nickname: String, community_id: i32) -> anyhow::Result<bool> {
         let result = sqlx::query!(
-            "SELECT EXISTS(SELECT 1 FROM players WHERE nickname = $1 AND community_id = $2) AS exists",
+            "SELECT EXISTS(SELECT 1 FROM players WHERE nickname = $1 AND community_id = $2 AND enabled = true) AS exists",
             nickname,
             community_id
         )
