@@ -24,10 +24,16 @@ impl Player {
             enabled: true,
         }
     }
+
+    pub fn disable(&mut self) {
+        self.enabled = false;
+    }
 }
 
 #[async_trait::async_trait]
 pub trait PlayerRepository: Send + Sync {
     async fn insert(&self, player: &Player) -> anyhow::Result<()>;
     async fn exists(&self, name: String, community_id: i32) -> anyhow::Result<bool>;
+    async fn get_by_id(&self, id: i32) -> anyhow::Result<Option<Player>>;
+    async fn save(&self, player: &Player) -> anyhow::Result<()>;
 }

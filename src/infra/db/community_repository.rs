@@ -28,6 +28,7 @@ impl CommunityRepository for PgCommunityRepository {
         .await?;
         Ok(())
     }
+
     async fn insert(&self, community: &Community) -> anyhow::Result<()> {
         sqlx::query!("INSERT INTO communities (name) VALUES ($1)", community.name)
             .execute(&self.pool)

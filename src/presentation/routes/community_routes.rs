@@ -5,6 +5,7 @@ use crate::{
         add_player_into_community_use_case::AddPlayerIntoCommunityUseCase,
         create_community_use_case::CreateCommunityUseCase,
         delete_community_use_case::DeleteCommunityUseCase,
+        delete_player_of_community_use_case::DeletePlayerOfCommunityUseCase,
         get_communities_use_case::GetCommunitiesUseCase,
     },
     domain::community::Community,
@@ -28,8 +29,9 @@ pub fn community_routes() -> Router<AppState> {
     Router::new()
         .route("/", post(create_community))
         .route("/", get(get_communities))
-        .route("/add-player", post(add_player_into_community))
+        .route("/player", post(add_player_into_community))
         .route("/{id}", delete(delete_community))
+        .route("/player/{id}", delete(delete_player_of_community))
 }
 
 async fn create_community(
@@ -69,4 +71,13 @@ async fn add_player_into_community(
     let use_case = AddPlayerIntoCommunityUseCase::new(Arc::new(player_repository));
 
     use_case.execute(dto).await
+}
+async fn delete_player_of_community(
+    State(state): State<AppState>,
+    Path(id): Path<i32>,
+) -> Result<(), (StatusCode, String)> {
+    let player_repository = PgPlayerRepository::new(state.db.clone());
+    let use_case = DeletePlayerOfCommunityUseCase::new(Arc::new(player_repository));
+
+    use_case.execute(id).await
 }

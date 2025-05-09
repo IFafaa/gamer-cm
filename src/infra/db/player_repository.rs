@@ -36,4 +36,38 @@ impl PlayerRepository for PgPlayerRepository {
         .await?;
         Ok(result.exists.unwrap_or(false))
     }
+
+    async fn get_by_id(&self, id: i32) -> anyhow::Result<Option<Player>> {
+        let row = sqlx::query!(
+            "SELECT id, nickname, community_id, created_at, updated_at, enabled FROM players WHERE id = $1",
+            id
+        )
+        .fetch_optional(&self.pool)
+        .await?;
+
+        if let Some(row) = row {
+            Ok(Some(Player {
+                id: row.id,
+                nickname: row.nickname,
+                community_id: row.community_id.unwrap_or(0),
+                created_at: row.created_at,
+                updated_at: row.updated_at,
+                enabled: row.enabled,
+            }))
+        } else {
+            Ok(None)
+        }
+    }
+
+    async fn save(&self, player: &Player) -> anyhow::Result<()> {
+        sqlx::query!(
+            "UPDATE players SET nickname = $1, enabled = $2, updated_at = NOW() WHERE id = $3",
+            player.nickname,
+            player.enabled,
+            player.id
+        )
+        .execute(&self.pool)
+        .await?;
+        Ok(())
+    }
 }
