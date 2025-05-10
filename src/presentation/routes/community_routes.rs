@@ -1,14 +1,16 @@
 use std::sync::Arc;
 
 use crate::{
-    application::use_cases::{
-        add_player_into_community_use_case::AddPlayerIntoCommunityUseCase,
-        create_community_use_case::CreateCommunityUseCase,
-        delete_community_use_case::DeleteCommunityUseCase,
-        delete_player_of_community_use_case::DeletePlayerOfCommunityUseCase,
-        get_communities_use_case::GetCommunitiesUseCase,
+    application::{
+        interfaces::get_communities_interface::IResultGetCommunities,
+        use_cases::{
+            add_player_into_community_use_case::AddPlayerIntoCommunityUseCase,
+            create_community_use_case::CreateCommunityUseCase,
+            delete_community_use_case::DeleteCommunityUseCase,
+            delete_player_of_community_use_case::DeletePlayerOfCommunityUseCase,
+            get_communities_use_case::GetCommunitiesUseCase,
+        },
     },
-    domain::community::Community,
     infra::db::{
         community_repository::PgCommunityRepository, player_repository::PgPlayerRepository,
     },
@@ -16,7 +18,7 @@ use crate::{
         add_player_into_community_dto::AddPlayerIntoCommunityDto,
         create_community_dto::CreateCommunityDto,
     },
-    shared::state::AppState,
+    shared::{api_response::ApiResponse, state::AppState},
 };
 use axum::{
     Router,
@@ -46,7 +48,7 @@ async fn create_community(
 
 async fn get_communities(
     State(state): State<AppState>,
-) -> Result<Json<Vec<Community>>, (StatusCode, String)> {
+) -> Result<Json<ApiResponse<Vec<IResultGetCommunities>>>, (StatusCode, String)> {
     let community_repository = PgCommunityRepository::new(state.db.clone());
     let use_case = GetCommunitiesUseCase::new(Arc::new(community_repository));
 
