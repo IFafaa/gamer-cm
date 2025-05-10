@@ -51,11 +51,15 @@ async fn create_community(
 
 async fn get_communities(
     State(state): State<AppState>,
-) -> Result<Json<ApiResponse<Vec<IResultGetCommunities>>>, (StatusCode, String)> {
+) -> Result<Json<ApiResponse<Vec<IResultGetCommunities>>>, (StatusCode, Json<ApiErrorResponse>)> {
     let community_repository = PgCommunityRepository::new(state.db.clone());
     let use_case = GetCommunitiesUseCase::new(Arc::new(community_repository));
 
-    use_case.execute().await.map(Json)
+    use_case
+        .execute()
+        .await
+        .map(|response| Json(response))
+        .map_err(|(status, error)| (status, Json(error)))
 }
 
 async fn delete_community(

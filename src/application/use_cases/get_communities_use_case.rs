@@ -2,7 +2,8 @@ use axum::http::StatusCode;
 
 use crate::{
     application::interfaces::get_communities_interface::IResultGetCommunities,
-    domain::community::CommunityRepository, shared::api_response::ApiResponse,
+    domain::community::CommunityRepository,
+    shared::{api_error::ApiErrorResponse, api_response::ApiResponse},
 };
 use std::sync::Arc;
 
@@ -19,16 +20,19 @@ impl<R: CommunityRepository> GetCommunitiesUseCase<R> {
 
     pub async fn execute(
         &self,
-    ) -> Result<ApiResponse<Vec<IResultGetCommunities>>, (StatusCode, String)> {
+    ) -> Result<ApiResponse<Vec<IResultGetCommunities>>, (StatusCode, ApiErrorResponse)> {
         let communities = self.community_repository.get_all().await.map_err(|_| {
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
-                "Internal Server Error".to_string(),
+                ApiErrorResponse::new("Internal Server Error".to_string()),
             )
         })?;
 
         if communities.is_empty() {
-            Err((StatusCode::NOT_FOUND, "No communities found".to_string()))
+            Err((
+                StatusCode::NOT_FOUND,
+                ApiErrorResponse::new("No communities found".to_string()),
+            ))
         } else {
             Ok(IResultGetCommunities::new(communities))
         }
