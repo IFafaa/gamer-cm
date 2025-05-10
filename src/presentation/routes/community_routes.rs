@@ -18,7 +18,7 @@ use crate::{
         add_player_into_community_dto::AddPlayerIntoCommunityDto,
         create_community_dto::CreateCommunityDto,
     },
-    shared::{api_response::ApiResponse, state::AppState},
+    shared::{api_error::ApiErrorResponse, api_response::ApiResponse, state::AppState},
 };
 use axum::{
     Router,
@@ -39,11 +39,14 @@ pub fn community_routes() -> Router<AppState> {
 async fn create_community(
     State(state): State<AppState>,
     Json(dto): Json<CreateCommunityDto>,
-) -> Result<(), (StatusCode, String)> {
+) -> Result<(), (StatusCode, Json<ApiErrorResponse>)> {
     let community_repository = PgCommunityRepository::new(state.db.clone());
     let use_case = CreateCommunityUseCase::new(Arc::new(community_repository));
 
-    use_case.execute(dto).await
+    use_case
+        .execute(dto)
+        .await
+        .map_err(|(status, error)| (status, Json(error)))
 }
 
 async fn get_communities(
