@@ -1,7 +1,7 @@
 use axum::http::StatusCode;
 
 use crate::{
-    application::interfaces::get_communities_interface::IResultGetCommunities,
+    application::interfaces::result_get_communities_interface::IResultGetCommunities,
     domain::community::CommunityRepository,
     shared::{api_error::ApiErrorResponse, api_response::ApiResponse},
 };
@@ -29,12 +29,12 @@ impl<R: CommunityRepository> GetCommunitiesUseCase<R> {
         })?;
 
         if communities.is_empty() {
-            Err((
+            return Err((
                 StatusCode::NOT_FOUND,
                 ApiErrorResponse::new("No communities found".to_string()),
-            ))
-        } else {
-            Ok(IResultGetCommunities::new(communities))
+            ));
         }
+
+        Ok(IResultGetCommunities::new(communities))
     }
 }

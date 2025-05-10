@@ -1,1 +1,2 @@
-pub mod get_communities_interface;
+pub mod result_get_communities_interface;
+pub mod result_get_community_by_id_interface;

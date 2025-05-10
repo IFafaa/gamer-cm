@@ -2,13 +2,17 @@ use std::sync::Arc;
 
 use crate::{
     application::{
-        interfaces::get_communities_interface::IResultGetCommunities,
+        interfaces::{
+            result_get_communities_interface::IResultGetCommunities,
+            result_get_community_by_id_interface::IResultGetCommunityById,
+        },
         use_cases::{
             add_player_into_community_use_case::AddPlayerIntoCommunityUseCase,
             create_community_use_case::CreateCommunityUseCase,
             delete_community_use_case::DeleteCommunityUseCase,
             delete_player_of_community_use_case::DeletePlayerOfCommunityUseCase,
             get_communities_use_case::GetCommunitiesUseCase,
+            get_community_by_id_use_case::GetCommunityByIdUseCase,
         },
     },
     infra::db::{
@@ -34,6 +38,7 @@ pub fn community_routes() -> Router<AppState> {
     Router::new()
         .route("/", post(create_community))
         .route("/", get(get_communities))
+        .route("/{id}", get(get_community_by_id))
         .route("/player", post(add_player_into_community))
         .route("/{id}", delete(delete_community))
         .route("/player/{id}", delete(delete_player_of_community))
@@ -62,6 +67,20 @@ async fn get_communities(
 
     use_case
         .execute()
+        .await
+        .map(|response| Json(response))
+        .map_err(|(status, error)| (status, Json(error)))
+}
+
+async fn get_community_by_id(
+    State(state): State<AppState>,
+    Path(id): Path<i32>,
+) -> Result<Json<ApiResponse<IResultGetCommunityById>>, (StatusCode, Json<ApiErrorResponse>)> {
+    let community_repository = PgCommunityRepository::new(state.db.clone());
+    let use_case = GetCommunityByIdUseCase::new(Arc::new(community_repository));
+
+    use_case
+        .execute(id)
         .await
         .map(|response| Json(response))
         .map_err(|(status, error)| (status, Json(error)))

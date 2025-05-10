@@ -2,7 +2,6 @@ use serde::Serialize;
 
 #[derive(Serialize)]
 pub struct ApiResponse<T> {
-    message: Option<String>,
     data: T,
     #[serde(skip_serializing_if = "Option::is_none")]
     meta: Option<PaginationMeta>,
@@ -22,7 +21,6 @@ pub struct PaginationMeta {
 impl<T: Default> ApiResponse<T> {
     pub fn success(data: T) -> Self {
         Self {
-            message: None,
             data,
             meta: None,
             timestamp: chrono::Utc::now().to_rfc3339(),
@@ -31,7 +29,6 @@ impl<T: Default> ApiResponse<T> {
 
     pub fn with_pagination(data: T, meta: PaginationMeta) -> Self {
         Self {
-            message: None,
             data,
             meta: Some(meta),
             timestamp: chrono::Utc::now().to_rfc3339(),
