@@ -18,7 +18,10 @@ use crate::{
         add_player_into_community_dto::AddPlayerIntoCommunityDto,
         create_community_dto::CreateCommunityDto,
     },
-    shared::{api_error::ApiErrorResponse, api_response::ApiResponse, state::AppState},
+    shared::{
+        api_error::ApiErrorResponse, api_response::ApiResponse, state::AppState,
+        validate_dto::validate_dto,
+    },
 };
 use axum::{
     Router,
@@ -40,6 +43,8 @@ async fn create_community(
     State(state): State<AppState>,
     Json(dto): Json<CreateCommunityDto>,
 ) -> Result<(), (StatusCode, Json<ApiErrorResponse>)> {
+    validate_dto(&dto)?;
+
     let community_repository = PgCommunityRepository::new(state.db.clone());
     let use_case = CreateCommunityUseCase::new(Arc::new(community_repository));
 
@@ -79,6 +84,8 @@ async fn add_player_into_community(
     State(state): State<AppState>,
     Json(dto): Json<AddPlayerIntoCommunityDto>,
 ) -> Result<(), (StatusCode, Json<ApiErrorResponse>)> {
+    validate_dto(&dto)?;
+
     let player_repository = PgPlayerRepository::new(state.db.clone());
     let community_repository = PgCommunityRepository::new(state.db.clone());
     let use_case = AddPlayerIntoCommunityUseCase::new(
@@ -91,6 +98,7 @@ async fn add_player_into_community(
         .await
         .map_err(|(status, error)| (status, Json(error)))
 }
+
 async fn delete_player_of_community(
     State(state): State<AppState>,
     Path(id): Path<i32>,
