@@ -30,6 +30,10 @@ impl Community {
     pub fn disable(&mut self) {
         self.enabled = false;
     }
+
+    pub fn is_enabled(&self) -> bool {
+        self.enabled
+    }
 }
 
 #[async_trait::async_trait]

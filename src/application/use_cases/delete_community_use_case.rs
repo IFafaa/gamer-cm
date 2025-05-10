@@ -35,8 +35,15 @@ impl<R: CommunityRepository> DeleteCommunityUseCase<R> {
                 ApiErrorResponse::new("Community not found".to_string()),
             ));
         }
-
         let mut community = community.unwrap();
+
+        if !community.is_enabled() {
+            return Err((
+                StatusCode::BAD_REQUEST,
+                ApiErrorResponse::new("Community is already disabled".to_string()),
+            ));
+        }
+
         community.disable();
 
         self.community_repository

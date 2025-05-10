@@ -35,6 +35,14 @@ impl<R: PlayerRepository> DeletePlayerOfCommunityUseCase<R> {
         }
 
         let mut player = player.unwrap();
+
+        if !player.is_enabled() {
+            return Err((
+                StatusCode::BAD_REQUEST,
+                ApiErrorResponse::new("Player is already disabled".to_string()),
+            ));
+        }
+
         player.disable();
 
         self.player_repository.save(&player).await.map_err(|_| {
