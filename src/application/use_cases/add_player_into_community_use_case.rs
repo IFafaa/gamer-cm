@@ -1,19 +1,24 @@
 use axum::http::StatusCode;
 
 use crate::{
+    domain::community::CommunityRepository, // Certifique-se de que este módulo exista
     domain::player::{Player, PlayerRepository},
     presentation::dtos::add_player_into_community_dto::AddPlayerIntoCommunityDto,
     shared::api_error::ApiErrorResponse,
 };
 use std::sync::Arc;
 
-pub struct AddPlayerIntoCommunityUseCase<R: PlayerRepository> {
-    player_repository: Arc<R>,
+pub struct AddPlayerIntoCommunityUseCase<PR: PlayerRepository, CR: CommunityRepository> {
+    player_repository: Arc<PR>,
+    community_repository: Arc<CR>,
 }
 
-impl<R: PlayerRepository> AddPlayerIntoCommunityUseCase<R> {
-    pub fn new(player_repository: Arc<R>) -> Self {
-        Self { player_repository }
+impl<PR: PlayerRepository, CR: CommunityRepository> AddPlayerIntoCommunityUseCase<PR, CR> {
+    pub fn new(player_repository: Arc<PR>, community_repository: Arc<CR>) -> Self {
+        Self {
+            player_repository,
+            community_repository,
+        }
     }
 
     pub async fn execute(
@@ -24,6 +29,23 @@ impl<R: PlayerRepository> AddPlayerIntoCommunityUseCase<R> {
             return Err((
                 StatusCode::BAD_REQUEST,
                 ApiErrorResponse::new("Invalid input".to_string()),
+            ));
+        }
+
+        let community = self
+            .community_repository
+            .get_by_id(dto.community_id)
+            .await
+            .map_err(|_| {
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    ApiErrorResponse::new("Internal server error".to_string()),
+                )
+            })?;
+        if community.is_none() {
+            return Err((
+                StatusCode::NOT_FOUND,
+                ApiErrorResponse::new("Community not found".to_string()),
             ));
         }
 

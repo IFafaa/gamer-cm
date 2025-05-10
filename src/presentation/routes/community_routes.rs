@@ -80,7 +80,11 @@ async fn add_player_into_community(
     Json(dto): Json<AddPlayerIntoCommunityDto>,
 ) -> Result<(), (StatusCode, Json<ApiErrorResponse>)> {
     let player_repository = PgPlayerRepository::new(state.db.clone());
-    let use_case = AddPlayerIntoCommunityUseCase::new(Arc::new(player_repository));
+    let community_repository = PgCommunityRepository::new(state.db.clone());
+    let use_case = AddPlayerIntoCommunityUseCase::new(
+        Arc::new(player_repository),
+        Arc::new(community_repository),
+    );
 
     use_case
         .execute(dto)
