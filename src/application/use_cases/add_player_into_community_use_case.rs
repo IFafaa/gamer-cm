@@ -3,6 +3,7 @@ use axum::http::StatusCode;
 use crate::{
     domain::player::{Player, PlayerRepository},
     presentation::dtos::add_player_into_community_dto::AddPlayerIntoCommunityDto,
+    shared::api_error::ApiErrorResponse,
 };
 use std::sync::Arc;
 
@@ -18,9 +19,12 @@ impl<R: PlayerRepository> AddPlayerIntoCommunityUseCase<R> {
     pub async fn execute(
         &self,
         dto: AddPlayerIntoCommunityDto,
-    ) -> Result<(), (StatusCode, String)> {
+    ) -> Result<(), (StatusCode, ApiErrorResponse)> {
         if dto.nickname.is_empty() || dto.community_id <= 0 {
-            return Err((StatusCode::BAD_REQUEST, "Invalid input".to_string()));
+            return Err((
+                StatusCode::BAD_REQUEST,
+                ApiErrorResponse::new("Invalid input".to_string()),
+            ));
         }
 
         let already_exists = self
@@ -30,18 +34,21 @@ impl<R: PlayerRepository> AddPlayerIntoCommunityUseCase<R> {
             .map_err(|_| {
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
-                    "Internal server error".to_string(),
+                    ApiErrorResponse::new("Internal server error".to_string()),
                 )
             })?;
         if already_exists {
-            return Err((StatusCode::CONFLICT, "Player already exists".to_string()));
+            return Err((
+                StatusCode::CONFLICT,
+                ApiErrorResponse::new("Player already exists in the community".to_string()),
+            ));
         }
 
         let player = Player::new(dto.nickname, dto.community_id);
         self.player_repository.insert(&player).await.map_err(|_| {
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
-                "Internal server error".to_string(),
+                ApiErrorResponse::new("Internal server error".to_string()),
             )
         })?;
         Ok(())
