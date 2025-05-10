@@ -1,6 +1,9 @@
 use axum::http::StatusCode;
 
-use crate::domain::community::{Community, CommunityRepository};
+use crate::{
+    domain::community::{Community, CommunityRepository},
+    shared::api_error::ApiErrorResponse,
+};
 use std::sync::Arc;
 
 pub struct DeleteCommunityUseCase<R: CommunityRepository> {
@@ -14,7 +17,7 @@ impl<R: CommunityRepository> DeleteCommunityUseCase<R> {
         }
     }
 
-    pub async fn execute(&self, community_id: i32) -> Result<(), (StatusCode, String)> {
+    pub async fn execute(&self, community_id: i32) -> Result<(), (StatusCode, ApiErrorResponse)> {
         let community: Option<Community> = self
             .community_repository
             .get_by_id(community_id)
@@ -22,12 +25,15 @@ impl<R: CommunityRepository> DeleteCommunityUseCase<R> {
             .map_err(|_| {
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
-                    "Internal server error".to_string(),
+                    ApiErrorResponse::new("Internal server error".to_string()),
                 )
             })?;
 
         if community.is_none() {
-            return Err((StatusCode::NOT_FOUND, "Community not found".to_string()));
+            return Err((
+                StatusCode::NOT_FOUND,
+                ApiErrorResponse::new("Community not found".to_string()),
+            ));
         }
 
         let mut community = community.unwrap();
@@ -39,7 +45,7 @@ impl<R: CommunityRepository> DeleteCommunityUseCase<R> {
             .map_err(|_| {
                 (
                     StatusCode::INTERNAL_SERVER_ERROR,
-                    "Internal server error".to_string(),
+                    ApiErrorResponse::new("Internal server error".to_string()),
                 )
             })?;
         Ok(())
