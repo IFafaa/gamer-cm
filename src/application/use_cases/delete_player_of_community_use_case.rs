@@ -1,6 +1,9 @@
 use axum::http::StatusCode;
 
-use crate::domain::player::{Player, PlayerRepository};
+use crate::{
+    domain::player::{Player, PlayerRepository},
+    shared::api_error::ApiErrorResponse,
+};
 use std::sync::Arc;
 
 pub struct DeletePlayerOfCommunityUseCase<R: PlayerRepository> {
@@ -12,7 +15,7 @@ impl<R: PlayerRepository> DeletePlayerOfCommunityUseCase<R> {
         Self { player_repository }
     }
 
-    pub async fn execute(&self, player_id: i32) -> Result<(), (StatusCode, String)> {
+    pub async fn execute(&self, player_id: i32) -> Result<(), (StatusCode, ApiErrorResponse)> {
         let player: Option<Player> =
             self.player_repository
                 .get_by_id(player_id)
@@ -20,12 +23,15 @@ impl<R: PlayerRepository> DeletePlayerOfCommunityUseCase<R> {
                 .map_err(|_| {
                     (
                         StatusCode::INTERNAL_SERVER_ERROR,
-                        "Internal server error".to_string(),
+                        ApiErrorResponse::new("Internal server error".to_string()),
                     )
                 })?;
 
         if player.is_none() {
-            return Err((StatusCode::NOT_FOUND, "Player not found".to_string()));
+            return Err((
+                StatusCode::NOT_FOUND,
+                ApiErrorResponse::new("Player not found".to_string()),
+            ));
         }
 
         let mut player = player.unwrap();
@@ -34,7 +40,7 @@ impl<R: PlayerRepository> DeletePlayerOfCommunityUseCase<R> {
         self.player_repository.save(&player).await.map_err(|_| {
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
-                "Internal server error".to_string(),
+                ApiErrorResponse::new("Internal server error".to_string()),
             )
         })?;
         Ok(())
