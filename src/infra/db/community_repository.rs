@@ -104,17 +104,16 @@ impl CommunityRepository for PgCommunityRepository {
                 })
                 .collect();
 
-            Ok(Some(Community {
+            return Ok(Some(Community {
                 id: row.id,
                 name: row.name,
                 players,
                 created_at: row.created_at,
                 updated_at: row.updated_at,
                 enabled: row.enabled,
-            }))
-        } else {
-            Ok(None)
+            }));
         }
+        Ok(None)
     }
 
     async fn exists(&self, name: String) -> anyhow::Result<bool> {

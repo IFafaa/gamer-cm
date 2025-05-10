@@ -46,17 +46,17 @@ impl PlayerRepository for PgPlayerRepository {
         .await?;
 
         if let Some(row) = row {
-            Ok(Some(Player {
+            return Ok(Some(Player {
                 id: row.id,
                 nickname: row.nickname,
                 community_id: row.community_id.unwrap_or(0),
                 created_at: row.created_at,
                 updated_at: row.updated_at,
                 enabled: row.enabled,
-            }))
-        } else {
-            Ok(None)
+            }));
         }
+
+        Ok(None)
     }
 
     async fn save(&self, player: &Player) -> anyhow::Result<()> {
