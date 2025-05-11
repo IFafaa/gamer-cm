@@ -8,9 +8,9 @@ use axum::{
 };
 
 use crate::{
-    application::use_cases::create_team_use_case::CreateTeamUseCase,
+    application::use_cases::add_team_into_community_use_case::AddTeamIntoCommunityUseCase,
     infra::db::{community_repository::PgCommunityRepository, team_repository::PgTeamRepository},
-    presentation::dtos::create_team_dto::CreateTeamDto,
+    presentation::dtos::add_team_into_community_dto::AddTeamIntoCommunityDto,
     shared::{api_error::ApiErrorResponse, state::AppState, validate_dto::validate_dto},
 };
 
@@ -20,14 +20,14 @@ pub fn team_routes() -> Router<AppState> {
 
 async fn create_team(
     State(state): State<AppState>,
-    Json(dto): Json<CreateTeamDto>,
+    Json(dto): Json<AddTeamIntoCommunityDto>,
 ) -> Result<(), (StatusCode, Json<ApiErrorResponse>)> {
     validate_dto(&dto)?;
 
     let team_repository = PgTeamRepository::new(state.db.clone());
     let community_repository = PgCommunityRepository::new(state.db.clone());
     let use_case =
-        CreateTeamUseCase::new(Arc::new(team_repository), Arc::new(community_repository));
+        AddTeamIntoCommunityUseCase::new(Arc::new(team_repository), Arc::new(community_repository));
 
     use_case
         .execute(dto)
