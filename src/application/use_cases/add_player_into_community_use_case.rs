@@ -25,13 +25,6 @@ impl<PR: PlayerRepository, CR: CommunityRepository> AddPlayerIntoCommunityUseCas
         &self,
         dto: AddPlayerIntoCommunityDto,
     ) -> Result<(), (StatusCode, ApiErrorResponse)> {
-        if dto.nickname.is_empty() || dto.community_id <= 0 {
-            return Err((
-                StatusCode::BAD_REQUEST,
-                ApiErrorResponse::new("Invalid input".to_string()),
-            ));
-        }
-
         let community = self
             .community_repository
             .get_by_id(dto.community_id)
