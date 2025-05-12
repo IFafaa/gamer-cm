@@ -7,21 +7,14 @@ use crate::{
             result_get_community_by_id_interface::IResultGetCommunityById,
         },
         use_cases::{
-            add_player_into_community_use_case::AddPlayerIntoCommunityUseCase,
             create_community_use_case::CreateCommunityUseCase,
             delete_community_use_case::DeleteCommunityUseCase,
-            delete_player_of_community_use_case::DeletePlayerOfCommunityUseCase,
             get_communities_use_case::GetCommunitiesUseCase,
             get_community_by_id_use_case::GetCommunityByIdUseCase,
         },
     },
-    infra::db::{
-        community_repository::PgCommunityRepository, player_repository::PgPlayerRepository,
-    },
-    presentation::dtos::{
-        add_player_into_community_dto::AddPlayerIntoCommunityDto,
-        create_community_dto::CreateCommunityDto,
-    },
+    infra::db::community_repository::PgCommunityRepository,
+    presentation::dtos::create_community_dto::CreateCommunityDto,
     shared::{
         api_error::ApiErrorResponse, api_response::ApiResponse, state::AppState,
         validate_dto::validate_dto,

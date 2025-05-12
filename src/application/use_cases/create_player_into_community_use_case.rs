@@ -1,19 +1,19 @@
 use axum::http::StatusCode;
 
 use crate::{
-    domain::community::CommunityRepository, // Certifique-se de que este módulo exista
+    domain::community::CommunityRepository,
     domain::player::{Player, PlayerRepository},
-    presentation::dtos::add_player_into_community_dto::AddPlayerIntoCommunityDto,
+    presentation::dtos::create_player_into_community_dto::CreatePlayerIntoCommunityDto,
     shared::api_error::ApiErrorResponse,
 };
 use std::sync::Arc;
 
-pub struct AddPlayerIntoCommunityUseCase<PR: PlayerRepository, CR: CommunityRepository> {
+pub struct CreatePlayerIntoCommunityUseCase<PR: PlayerRepository, CR: CommunityRepository> {
     player_repository: Arc<PR>,
     community_repository: Arc<CR>,
 }
 
-impl<PR: PlayerRepository, CR: CommunityRepository> AddPlayerIntoCommunityUseCase<PR, CR> {
+impl<PR: PlayerRepository, CR: CommunityRepository> CreatePlayerIntoCommunityUseCase<PR, CR> {
     pub fn new(player_repository: Arc<PR>, community_repository: Arc<CR>) -> Self {
         Self {
             player_repository,
@@ -23,7 +23,7 @@ impl<PR: PlayerRepository, CR: CommunityRepository> AddPlayerIntoCommunityUseCas
 
     pub async fn execute(
         &self,
-        dto: AddPlayerIntoCommunityDto,
+        dto: CreatePlayerIntoCommunityDto,
     ) -> Result<(), (StatusCode, ApiErrorResponse)> {
         let community = self
             .community_repository
