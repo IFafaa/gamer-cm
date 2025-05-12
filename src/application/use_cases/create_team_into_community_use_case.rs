@@ -5,17 +5,17 @@ use crate::{
         community::CommunityRepository,
         team::{Team, TeamRepository},
     },
-    presentation::dtos::add_team_into_community_dto::AddTeamIntoCommunityDto,
+    presentation::dtos::create_team_into_community_dto::CreateTeamIntoCommunityDto,
     shared::api_error::ApiErrorResponse,
 };
 use std::sync::Arc;
 
-pub struct AddTeamIntoCommunityUseCase<TR: TeamRepository, CR: CommunityRepository> {
+pub struct CreateTeamIntoCommunityUseCase<TR: TeamRepository, CR: CommunityRepository> {
     team_repository: Arc<TR>,
     community_repository: Arc<CR>,
 }
 
-impl<TR: TeamRepository, CR: CommunityRepository> AddTeamIntoCommunityUseCase<TR, CR> {
+impl<TR: TeamRepository, CR: CommunityRepository> CreateTeamIntoCommunityUseCase<TR, CR> {
     pub fn new(team_repository: Arc<TR>, community_repository: Arc<CR>) -> Self {
         Self {
             team_repository,
@@ -25,7 +25,7 @@ impl<TR: TeamRepository, CR: CommunityRepository> AddTeamIntoCommunityUseCase<TR
 
     pub async fn execute(
         &self,
-        dto: AddTeamIntoCommunityDto,
+        dto: CreateTeamIntoCommunityDto,
     ) -> Result<(), (StatusCode, ApiErrorResponse)> {
         let already_exists = self
             .team_repository

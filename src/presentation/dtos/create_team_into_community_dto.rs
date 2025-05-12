@@ -2,7 +2,7 @@ use serde::Deserialize;
 use validator::Validate;
 
 #[derive(Deserialize, Validate)]
-pub struct AddTeamIntoCommunityDto {
+pub struct CreateTeamIntoCommunityDto {
     #[validate(length(
         min = 1,
         max = 50,
