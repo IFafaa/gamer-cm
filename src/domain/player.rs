@@ -3,7 +3,7 @@ use time::PrimitiveDateTime;
 
 use crate::shared::date_time::DateTime;
 
-#[derive(Serialize)]
+#[derive(Serialize, Clone)]
 pub struct Player {
     pub id: i32,
     pub nickname: String,

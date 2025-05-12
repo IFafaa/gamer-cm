@@ -3,22 +3,32 @@ use serde::Serialize;
 use crate::{domain::community::Community, shared::api_response::ApiResponse};
 
 #[derive(Serialize)]
-
 pub struct IResultGetCommunities {
     id: i32,
     name: String,
     created_at: String,
     updated_at: String,
     players: Vec<IResultPlayer>,
+    teams: Vec<IResultTeams>,
 }
-#[derive(Serialize)]
 
+#[derive(Serialize)]
+struct IResultTeams {
+    id: i32,
+    name: String,
+    players: Vec<IResultPlayer>,
+    created_at: String,
+    updated_at: String,
+}
+
+#[derive(Serialize)]
 struct IResultPlayer {
     id: i32,
     nickname: String,
     created_at: String,
     updated_at: String,
 }
+
 impl IResultGetCommunities {
     pub fn new(communities: Vec<Community>) -> ApiResponse<Vec<Self>> {
         let data = communities
@@ -36,6 +46,26 @@ impl IResultGetCommunities {
                         nickname: player.nickname,
                         created_at: player.created_at.to_string(),
                         updated_at: player.updated_at.to_string(),
+                    })
+                    .collect(),
+                teams: community
+                    .teams
+                    .into_iter()
+                    .map(|team| IResultTeams {
+                        id: team.id,
+                        name: team.name,
+                        players: team
+                            .players
+                            .into_iter()
+                            .map(|player| IResultPlayer {
+                                id: player.id,
+                                nickname: player.nickname,
+                                created_at: player.created_at.to_string(),
+                                updated_at: player.updated_at.to_string(),
+                            })
+                            .collect(),
+                        created_at: team.created_at.to_string(),
+                        updated_at: team.updated_at.to_string(),
                     })
                     .collect(),
             })

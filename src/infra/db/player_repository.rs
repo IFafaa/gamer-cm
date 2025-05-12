@@ -49,7 +49,7 @@ impl PlayerRepository for PgPlayerRepository {
             return Ok(Some(Player {
                 id: row.id,
                 nickname: row.nickname,
-                community_id: row.community_id.unwrap_or(0),
+                community_id: row.community_id,
                 created_at: row.created_at,
                 updated_at: row.updated_at,
                 enabled: row.enabled,

@@ -3,13 +3,14 @@ use time::PrimitiveDateTime;
 
 use crate::shared::date_time::DateTime;
 
-use super::player::Player;
+use super::{player::Player, team::Team};
 
 #[derive(Serialize)]
 pub struct Community {
     pub id: i32,
     pub name: String,
     pub players: Vec<Player>,
+    pub teams: Vec<Team>,
     pub created_at: PrimitiveDateTime,
     pub updated_at: PrimitiveDateTime,
     pub enabled: bool,
@@ -23,6 +24,7 @@ impl Community {
             created_at: DateTime::now(),
             updated_at: DateTime::now(),
             players: Vec::new(),
+            teams: Vec::new(),
             enabled: true,
         }
     }

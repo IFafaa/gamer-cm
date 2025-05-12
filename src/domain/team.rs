@@ -1,14 +1,19 @@
-use chrono::{DateTime, Utc};
+use serde::Serialize;
+use time::PrimitiveDateTime;
+
+use crate::shared::date_time::DateTime;
 
 use super::player::Player;
+
+#[derive(Serialize, Clone)]
 
 pub struct Team {
     pub id: i32,
     pub name: String,
     pub players: Vec<Player>,
     pub community_id: i32,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
+    pub created_at: PrimitiveDateTime,
+    pub updated_at: PrimitiveDateTime,
     pub enabled: bool,
 }
 
@@ -19,8 +24,8 @@ impl Team {
             name,
             community_id,
             players: Vec::new(),
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
+            created_at: DateTime::now(),
+            updated_at: DateTime::now(),
             enabled: true,
         }
     }

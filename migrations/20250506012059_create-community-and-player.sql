@@ -11,7 +11,7 @@ CREATE TABLE
     players (
         id SERIAL PRIMARY KEY,
         nickname VARCHAR(255) NOT NULL,
-        community_id INT REFERENCES communities (id) ON DELETE CASCADE,
+        community_id INT REFERENCES communities (id) ON DELETE CASCADE NOT NULL,
         created_at TIMESTAMP NOT NULL DEFAULT NOW (),
         updated_at TIMESTAMP NOT NULL DEFAULT NOW (),
         enabled BOOLEAN NOT NULL DEFAULT TRUE
@@ -21,7 +21,7 @@ CREATE TABLE
     teams (
         id SERIAL PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
-        community_id INT REFERENCES communities (id) ON DELETE CASCADE,
+        community_id INT REFERENCES communities (id) ON DELETE CASCADE NOT NULL,
         created_at TIMESTAMP NOT NULL DEFAULT NOW (),
         updated_at TIMESTAMP NOT NULL DEFAULT NOW (),
         enabled BOOLEAN NOT NULL DEFAULT TRUE
@@ -29,8 +29,8 @@ CREATE TABLE
 
 CREATE TABLE
     team_players (
-        player_id INT REFERENCES players (id) ON DELETE CASCADE,
-        team_id INT REFERENCES teams (id) ON DELETE CASCADE,
+        player_id INT REFERENCES players (id) ON DELETE CASCADE NOT NULL,
+        team_id INT REFERENCES teams (id) ON DELETE CASCADE NOT NULL,
         created_at TIMESTAMP NOT NULL DEFAULT NOW (),
         updated_at TIMESTAMP NOT NULL DEFAULT NOW (),
         enabled BOOLEAN NOT NULL DEFAULT TRUE,
@@ -42,7 +42,7 @@ CREATE TABLE
         id SERIAL PRIMARY KEY,
         game_name VARCHAR(255),
         team_winner_id INT REFERENCES teams (id) ON DELETE SET NULL,
-        community_id INT REFERENCES communities (id) ON DELETE CASCADE,
+        community_id INT REFERENCES communities (id) ON DELETE CASCADE NOT NULL,
         created_at TIMESTAMP NOT NULL DEFAULT NOW (),
         updated_at TIMESTAMP NOT NULL DEFAULT NOW (),
         enabled BOOLEAN NOT NULL DEFAULT TRUE
@@ -50,8 +50,8 @@ CREATE TABLE
 
 CREATE TABLE
     party_teams (
-        team_id INT REFERENCES teams (id) ON DELETE CASCADE,
-        party_id INT REFERENCES parties (id) ON DELETE CASCADE,
+        team_id INT REFERENCES teams (id) ON DELETE CASCADE NOT NULL,
+        party_id INT REFERENCES parties (id) ON DELETE CASCADE NOT NULL,
         created_at TIMESTAMP NOT NULL DEFAULT NOW (),
         updated_at TIMESTAMP NOT NULL DEFAULT NOW (),
         enabled BOOLEAN NOT NULL DEFAULT TRUE,
