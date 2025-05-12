@@ -20,11 +20,11 @@ use axum::{
 
 pub fn player_routes() -> Router<AppState> {
     Router::new()
-        .route("/", post(add_player_into_community))
+        .route("/", post(create_player_into_community))
         .route("/{id}", delete(delete_player_of_community))
 }
 
-async fn add_player_into_community(
+async fn create_player_into_community(
     State(state): State<AppState>,
     Json(dto): Json<CreatePlayerIntoCommunityDto>,
 ) -> Result<(), (StatusCode, Json<ApiErrorResponse>)> {

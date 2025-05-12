@@ -59,6 +59,29 @@ impl PlayerRepository for PgPlayerRepository {
         Ok(None)
     }
 
+    async fn get_by_ids(&self, ids: Vec<i32>) -> anyhow::Result<Vec<Player>> {
+        let rows = sqlx::query!(
+            "SELECT id, nickname, community_id, created_at, updated_at, enabled FROM players WHERE id = ANY($1)",
+            &ids
+        )
+        .fetch_all(&self.pool)
+        .await?;
+
+        let players = rows
+            .into_iter()
+            .map(|row| Player {
+                id: row.id,
+                nickname: row.nickname,
+                community_id: row.community_id,
+                created_at: row.created_at,
+                updated_at: row.updated_at,
+                enabled: row.enabled,
+            })
+            .collect();
+
+        Ok(players)
+    }
+
     async fn save(&self, player: &Player) -> anyhow::Result<()> {
         sqlx::query!(
             "UPDATE players SET nickname = $1, enabled = $2, updated_at = NOW() WHERE id = $3",

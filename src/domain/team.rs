@@ -29,6 +29,10 @@ impl Team {
             enabled: true,
         }
     }
+
+    pub fn add_player(&mut self, player: Player) {
+        self.players.push(player);
+    }
 }
 
 #[async_trait::async_trait]
@@ -36,6 +40,6 @@ impl Team {
 pub trait TeamRepository: Send + Sync {
     async fn insert(&self, team: &Team) -> anyhow::Result<()>;
     async fn exists(&self, name: String, community_id: i32) -> anyhow::Result<bool>;
-    // async fn get_by_params(&self) -> anyhow::Result<Vec<Team>>;
+    async fn get_by_id(&self, id: i32) -> anyhow::Result<Option<Team>>;
     async fn save(&self, team: &Team) -> anyhow::Result<()>;
 }

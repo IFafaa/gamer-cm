@@ -1,4 +1,7 @@
-use crate::domain::team::{Team, TeamRepository};
+use crate::domain::{
+    player::Player,
+    team::{Team, TeamRepository},
+};
 use async_trait::async_trait;
 use sqlx::PgPool;
 
@@ -10,10 +13,65 @@ impl PgTeamRepository {
     pub fn new(pool: PgPool) -> Self {
         Self { pool }
     }
+
+    async fn fetch_team_players(
+        &self,
+        community_id: i32,
+        team_id: i32,
+    ) -> anyhow::Result<Vec<Player>> {
+        let rows = sqlx::query!(
+            "SELECT id, nickname, community_id, created_at, updated_at FROM players 
+             WHERE community_id = $1 AND enabled = true 
+             AND id IN (SELECT player_id FROM team_players WHERE team_id = $2)",
+            community_id,
+            team_id
+        )
+        .fetch_all(&self.pool)
+        .await?;
+
+        Ok(rows
+            .into_iter()
+            .map(|p| Player {
+                id: p.id,
+                nickname: p.nickname,
+                community_id: p.community_id,
+                created_at: p.created_at,
+                updated_at: p.updated_at,
+                enabled: true,
+            })
+            .collect())
+    }
 }
 
 #[async_trait]
 impl TeamRepository for PgTeamRepository {
+    async fn get_by_id(&self, id: i32) -> anyhow::Result<Option<Team>> {
+        let team = sqlx::query! {
+            "SELECT id, name, community_id, created_at, updated_at, enabled FROM teams WHERE id = $1",
+            id
+        }
+        .fetch_optional(&self.pool)
+        .await?;
+
+        if let Some(team_row) = team {
+            let players = self
+                .fetch_team_players(team_row.community_id, team_row.id)
+                .await?;
+
+            return Ok(Some(Team {
+                id: team_row.id,
+                name: team_row.name,
+                community_id: team_row.community_id,
+                created_at: team_row.created_at,
+                updated_at: team_row.updated_at,
+                enabled: team_row.enabled,
+                players,
+            }));
+        }
+
+        Ok(None)
+    }
+
     async fn insert(&self, team: &Team) -> anyhow::Result<()> {
         sqlx::query!(
             "INSERT INTO teams (name, community_id) VALUES ($1, $2)",
