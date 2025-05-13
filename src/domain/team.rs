@@ -41,5 +41,6 @@ pub trait TeamRepository: Send + Sync {
     async fn insert(&self, team: &Team) -> anyhow::Result<()>;
     async fn exists(&self, name: String, community_id: i32) -> anyhow::Result<bool>;
     async fn get_by_id(&self, id: i32) -> anyhow::Result<Option<Team>>;
+    async fn get_by_ids(&self, ids: Vec<i32>) -> anyhow::Result<Vec<Team>>;
     async fn save(&self, team: &Team) -> anyhow::Result<()>;
 }

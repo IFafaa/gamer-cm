@@ -45,6 +45,32 @@ impl PgTeamRepository {
 
 #[async_trait]
 impl TeamRepository for PgTeamRepository {
+    async fn get_by_ids(&self, ids: Vec<i32>) -> anyhow::Result<Vec<Team>> {
+        let rows = sqlx::query!(
+            "SELECT id, name, community_id, created_at, updated_at, enabled FROM teams WHERE id = ANY($1)",
+            &ids
+        )
+        .fetch_all(&self.pool)
+        .await?;
+
+        let mut teams = Vec::new();
+        for row in rows {
+            let players = self.fetch_team_players(row.community_id, row.id).await?;
+
+            teams.push(Team {
+                id: row.id,
+                name: row.name,
+                community_id: row.community_id,
+                created_at: row.created_at,
+                updated_at: row.updated_at,
+                enabled: row.enabled,
+                players,
+            });
+        }
+
+        Ok(teams)
+    }
+
     async fn get_by_id(&self, id: i32) -> anyhow::Result<Option<Team>> {
         let team = sqlx::query! {
             "SELECT id, name, community_id, created_at, updated_at, enabled FROM teams WHERE id = $1",

@@ -1,5 +1,6 @@
 pub mod add_players_into_team_use_case;
 pub mod create_community_use_case;
+pub mod create_party_use_case;
 pub mod create_player_into_community_use_case;
 pub mod create_team_into_community_use_case;
 pub mod delete_community_use_case;
