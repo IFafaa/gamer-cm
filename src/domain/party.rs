@@ -1,4 +1,6 @@
-use chrono::{DateTime, Utc};
+use time::PrimitiveDateTime;
+
+use crate::shared::date_time::DateTime;
 
 use super::team::Team;
 
@@ -8,8 +10,8 @@ pub struct Party {
     pub game_name: String,
     pub teams: Vec<Team>,
     pub team_winner_id: Option<i32>,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
+    pub created_at: PrimitiveDateTime,
+    pub updated_at: PrimitiveDateTime,
 }
 
 impl Party {
@@ -20,8 +22,8 @@ impl Party {
             teams,
             team_winner_id: None,
             game_name,
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
+            created_at: DateTime::now(),
+            updated_at: DateTime::now(),
         }
     }
 }
@@ -29,4 +31,17 @@ impl Party {
 #[async_trait::async_trait]
 pub trait PartyRepository: Send + Sync {
     async fn insert(&self, party: &Party) -> anyhow::Result<()>;
+    async fn get_by_params(
+        &self,
+        params: IGetPartiesByParams,
+    ) -> anyhow::Result<Vec<Party>>;
+}
+
+pub struct IGetPartiesByParams {
+    pub community_id: Option<i32>,
+    pub game_name: Option<String>,
+    pub created_at: Option<PrimitiveDateTime>,
+    pub updated_at: Option<PrimitiveDateTime>,
+    pub teams_ids: Option<Vec<i32>>,
+    pub team_winner_ids: Option<Vec<i32>>,
 }

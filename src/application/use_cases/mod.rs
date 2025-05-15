@@ -7,3 +7,4 @@ pub mod delete_community_use_case;
 pub mod delete_player_of_community_use_case;
 pub mod get_communities_use_case;
 pub mod get_community_by_id_use_case;
+pub mod get_parties_use_case;
