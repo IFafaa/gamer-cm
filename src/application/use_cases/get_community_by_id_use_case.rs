@@ -1,7 +1,7 @@
 use axum::http::StatusCode;
 
 use crate::{
-    application::interfaces::result_get_community_by_id_interface::IResultGetCommunityById,
+    application::interfaces::result_get_community_interface::IResultGetCommunity,
     domain::community::CommunityRepository,
     shared::{api_error::ApiErrorResponse, api_response::ApiResponse},
 };
@@ -21,7 +21,7 @@ impl<R: CommunityRepository> GetCommunityByIdUseCase<R> {
     pub async fn execute(
         &self,
         _community_id: i32,
-    ) -> Result<ApiResponse<IResultGetCommunityById>, (StatusCode, ApiErrorResponse)> {
+    ) -> Result<ApiResponse<IResultGetCommunity>, (StatusCode, ApiErrorResponse)> {
         let community = self
             .community_repository
             .get_by_id(_community_id)
@@ -42,6 +42,7 @@ impl<R: CommunityRepository> GetCommunityByIdUseCase<R> {
 
         let community = community.unwrap();
 
-        Ok(IResultGetCommunityById::new(community))
+        let result = IResultGetCommunity::new(community);
+        Ok(ApiResponse::success(result))
     }
 }

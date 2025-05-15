@@ -2,10 +2,7 @@ use std::sync::Arc;
 
 use crate::{
     application::{
-        interfaces::{
-            result_get_communities_interface::IResultGetCommunities,
-            result_get_community_by_id_interface::IResultGetCommunityById,
-        },
+        interfaces::result_get_community_interface::IResultGetCommunity,
         use_cases::{
             create_community_use_case::CreateCommunityUseCase,
             delete_community_use_case::DeleteCommunityUseCase,
@@ -52,7 +49,7 @@ async fn create_community(
 
 async fn get_communities(
     State(state): State<AppState>,
-) -> Result<Json<ApiResponse<Vec<IResultGetCommunities>>>, (StatusCode, Json<ApiErrorResponse>)> {
+) -> Result<Json<ApiResponse<Vec<IResultGetCommunity>>>, (StatusCode, Json<ApiErrorResponse>)> {
     let community_repository = PgCommunityRepository::new(state.db.clone());
     let use_case = GetCommunitiesUseCase::new(Arc::new(community_repository));
 
@@ -66,7 +63,7 @@ async fn get_communities(
 async fn get_community_by_id(
     State(state): State<AppState>,
     Path(id): Path<i32>,
-) -> Result<Json<ApiResponse<IResultGetCommunityById>>, (StatusCode, Json<ApiErrorResponse>)> {
+) -> Result<Json<ApiResponse<IResultGetCommunity>>, (StatusCode, Json<ApiErrorResponse>)> {
     let community_repository = PgCommunityRepository::new(state.db.clone());
     let use_case = GetCommunityByIdUseCase::new(Arc::new(community_repository));
 

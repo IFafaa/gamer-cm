@@ -18,7 +18,7 @@ pub struct PaginationMeta {
     has_previous_page: bool,
 }
 
-impl<T: Default> ApiResponse<T> {
+impl<T> ApiResponse<T> {
     pub fn success(data: T) -> Self {
         Self {
             data,
