@@ -43,6 +43,7 @@ CREATE TABLE
         game_name VARCHAR(255),
         team_winner_id INT REFERENCES teams (id) ON DELETE SET NULL,
         community_id INT REFERENCES communities (id) ON DELETE CASCADE NOT NULL,
+        finished_at TIMESTAMP,
         created_at TIMESTAMP NOT NULL DEFAULT NOW (),
         updated_at TIMESTAMP NOT NULL DEFAULT NOW (),
         enabled BOOLEAN NOT NULL DEFAULT TRUE
