@@ -36,6 +36,10 @@ impl Party {
         self.finished_at = Some(DateTime::now());
         self.updated_at = DateTime::now();
     }
+
+    pub fn is_finished(&self) -> bool {
+        self.finished_at.is_some()
+    }
 }
 
 #[async_trait::async_trait]

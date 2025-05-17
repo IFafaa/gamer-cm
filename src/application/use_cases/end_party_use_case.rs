@@ -36,6 +36,13 @@ impl<PR: PartyRepository, TR: TeamRepository> EndPartyUseCase<PR, TR> {
                 ApiErrorResponse::new("Party not found".to_string()),
             ))?;
 
+        if party.is_finished() {
+            return Err((
+                StatusCode::BAD_REQUEST,
+                ApiErrorResponse::new("Party is already finished".to_string()),
+            ));
+        }
+
         let team_winner = match dto.team_winner_id {
             Some(team_id) => Some(
                 self.team_repository
