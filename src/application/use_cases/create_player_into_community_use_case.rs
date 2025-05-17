@@ -34,17 +34,15 @@ impl<PR: PlayerRepository, CR: CommunityRepository> CreatePlayerIntoCommunityUse
                     StatusCode::INTERNAL_SERVER_ERROR,
                     ApiErrorResponse::new("Internal server error".to_string()),
                 )
-            })?;
-        if community.is_none() {
-            return Err((
+            })?
+            .ok_or((
                 StatusCode::NOT_FOUND,
                 ApiErrorResponse::new("Community not found".to_string()),
-            ));
-        }
+            ))?;
 
         let already_exists = self
             .player_repository
-            .exists(dto.nickname.clone(), dto.community_id)
+            .exists(dto.nickname.clone(), community.id)
             .await
             .map_err(|_| {
                 (

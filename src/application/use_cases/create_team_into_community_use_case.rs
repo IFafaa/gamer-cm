@@ -53,16 +53,13 @@ impl<TR: TeamRepository, CR: CommunityRepository> CreateTeamIntoCommunityUseCase
                     StatusCode::INTERNAL_SERVER_ERROR,
                     ApiErrorResponse::new("Internal server error".to_string()),
                 )
-            })?;
-
-        if community.is_none() {
-            return Err((
+            })?
+            .ok_or((
                 StatusCode::NOT_FOUND,
                 ApiErrorResponse::new("Community not found".to_string()),
-            ));
-        }
+            ))?;
 
-        let team = Team::new(dto.nickname, dto.community_id);
+        let team = Team::new(dto.nickname, community.id);
         self.team_repository.insert(&team).await.map_err(|_| {
             (
                 StatusCode::INTERNAL_SERVER_ERROR,

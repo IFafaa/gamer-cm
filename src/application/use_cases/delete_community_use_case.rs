@@ -18,7 +18,7 @@ impl<R: CommunityRepository> DeleteCommunityUseCase<R> {
     }
 
     pub async fn execute(&self, community_id: i32) -> Result<(), (StatusCode, ApiErrorResponse)> {
-        let community: Option<Community> = self
+        let mut community = self
             .community_repository
             .get_by_id(community_id)
             .await
@@ -27,15 +27,11 @@ impl<R: CommunityRepository> DeleteCommunityUseCase<R> {
                     StatusCode::INTERNAL_SERVER_ERROR,
                     ApiErrorResponse::new("Internal server error".to_string()),
                 )
-            })?;
-
-        if community.is_none() {
-            return Err((
+            })?
+            .ok_or((
                 StatusCode::NOT_FOUND,
                 ApiErrorResponse::new("Community not found".to_string()),
-            ));
-        }
-        let mut community = community.unwrap();
+            ))?;
 
         if !community.is_enabled() {
             return Err((
