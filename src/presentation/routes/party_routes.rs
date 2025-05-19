@@ -2,29 +2,26 @@ use std::sync::Arc;
 
 use axum::{
     Json, Router,
-    extract::State,
+    extract::{Path, State},
     http::StatusCode,
-    routing::{get, patch, post},
+    routing::{delete, get, patch, post},
 };
+use tokio::task::Id;
 
 use crate::{
     application::{
         interfaces::result_get_party_interface::IResultGetParty,
         use_cases::{
-            create_party_use_case::CreatePartyUseCase, end_party_use_case::EndPartyUseCase,
-            get_parties_use_case::GetPartiesUseCase,
+            create_party_use_case::CreatePartyUseCase, delete_party_use_case::DeletePartyUseCase,
+            end_party_use_case::EndPartyUseCase, get_parties_use_case::GetPartiesUseCase,
         },
     },
-    domain::team,
     infra::db::{
         community_repository::PgCommunityRepository, party_repository::PgPartyRepository,
         team_repository::PgTeamRepository,
     },
     presentation::dtos::{create_party_dto::CreatePartyDto, end_party_dto::EndPartyDto},
-    shared::{
-        api_error::ApiErrorResponse, api_response::ApiResponse, state::AppState,
-        validate_dto::validate_dto,
-    },
+    shared::{api_error::ApiErrorResponse, api_response::ApiResponse, state::AppState},
 };
 
 pub fn party_routes() -> Router<AppState> {
@@ -32,6 +29,7 @@ pub fn party_routes() -> Router<AppState> {
         .route("/", post(create_party))
         .route("/", get(get_parties))
         .route("/end", patch(end_party))
+        .route("/{id}", delete(delete_party))
 }
 
 async fn create_party(
@@ -80,6 +78,19 @@ async fn end_party(
 
     use_case
         .execute(dto)
+        .await
+        .map_err(|(status, error)| (status, Json(error)))
+}
+
+async fn delete_party(
+    State(state): State<AppState>,
+    Path(party_id): Path<i32>,
+) -> Result<(), (StatusCode, Json<ApiErrorResponse>)> {
+    let party_repository = PgPartyRepository::new(state.db.clone());
+    let use_case = DeletePartyUseCase::new(Arc::new(party_repository));
+
+    use_case
+        .execute(party_id)
         .await
         .map_err(|(status, error)| (status, Json(error)))
 }

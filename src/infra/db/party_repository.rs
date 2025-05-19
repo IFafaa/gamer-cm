@@ -295,12 +295,13 @@ impl PartyRepository for PgPartyRepository {
         sqlx::query!(
             r#"
             UPDATE parties 
-            SET game_name = $1, team_winner_id = $2, finished_at = $3, updated_at = $4 
-            WHERE id = $5
+            SET game_name = $1, team_winner_id = $2, finished_at = $3, enabled = $4, updated_at = $5
+            WHERE id = $6
             "#,
             party.game_name,
             party.team_winner_id,
             party.finished_at,
+            party.enabled,
             party.updated_at,
             party.id
         )

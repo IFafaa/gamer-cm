@@ -40,6 +40,15 @@ impl Party {
     pub fn is_finished(&self) -> bool {
         self.finished_at.is_some()
     }
+
+    pub fn disable(&mut self) {
+        self.enabled = false;
+        self.updated_at = DateTime::now();
+    }
+
+    pub fn is_enabled(&self) -> bool {
+        self.enabled
+    }
 }
 
 #[async_trait::async_trait]
