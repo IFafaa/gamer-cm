@@ -10,3 +10,4 @@ pub mod end_party_use_case;
 pub mod get_communities_use_case;
 pub mod get_community_by_id_use_case;
 pub mod get_parties_use_case;
+pub mod get_party_by_id_use_case;
