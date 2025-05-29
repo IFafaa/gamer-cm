@@ -24,7 +24,7 @@ impl<PR: PlayerRepository, TR: TeamRepository> AddPlayersIntoTeamUseCase<PR, TR>
         &self,
         dto: AddPlayersIntoTeamDto,
     ) -> Result<(), (StatusCode, ApiErrorResponse)> {
-        let team = self
+        let mut team = self
             .team_repository
             .get_by_id(dto.team_id)
             .await
@@ -33,16 +33,11 @@ impl<PR: PlayerRepository, TR: TeamRepository> AddPlayersIntoTeamUseCase<PR, TR>
                     StatusCode::INTERNAL_SERVER_ERROR,
                     ApiErrorResponse::new("Internal server error".to_string()),
                 )
-            })?;
-
-        if team.is_none() {
-            return Err((
+            })?
+            .ok_or((
                 StatusCode::NOT_FOUND,
                 ApiErrorResponse::new("Team not found".to_string()),
-            ));
-        }
-
-        let mut team = team.unwrap();
+            ))?;
 
         let players_ids = dto.players_ids.clone();
         let players = self

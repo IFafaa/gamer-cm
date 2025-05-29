@@ -1,3 +1,4 @@
+use anyhow::Ok;
 use async_trait::async_trait;
 use sqlx::{PgPool, types::JsonValue};
 use time::PrimitiveDateTime;
@@ -147,7 +148,7 @@ impl PartyRepository for PgPartyRepository {
         let team_winner_ids = params.team_winner_ids;
 
         let base_query = r#"
-            SELECT id, community_id, game_name, team_winner_id, created_at, updated_at 
+            SELECT id, community_id, game_name, team_winner_id, finished_at, created_at, updated_at, enabled 
             FROM parties
         "#;
 
@@ -168,8 +169,10 @@ impl PartyRepository for PgPartyRepository {
                 i32,
                 String,
                 Option<i32>,
+                Option<PrimitiveDateTime>,
                 PrimitiveDateTime,
                 PrimitiveDateTime,
+                bool,
             ),
         >(&query);
         for param in params {
@@ -180,7 +183,17 @@ impl PartyRepository for PgPartyRepository {
 
         let mut parties = Vec::new();
 
-        for (id, community_id, game_name, team_winner_id, created_at, updated_at) in party_rows {
+        for (
+            id,
+            community_id,
+            game_name,
+            team_winner_id,
+            finished_at,
+            created_at,
+            updated_at,
+            enabled,
+        ) in party_rows
+        {
             let team_rows = sqlx::query!(
                 r#"
                 SELECT t.id, t.community_id, t.enabled, t.name, t.created_at, t.updated_at 
@@ -212,12 +225,88 @@ impl PartyRepository for PgPartyRepository {
                 community_id,
                 game_name,
                 team_winner_id,
+                finished_at,
                 created_at,
                 updated_at,
                 teams,
+                enabled,
             });
         }
 
         Ok(parties)
+    }
+
+    async fn get_by_id(&self, id: i32) -> anyhow::Result<Option<Party>> {
+        let row = sqlx::query!(
+            r#"
+            SELECT id, community_id, game_name, team_winner_id, finished_at, created_at, updated_at, enabled
+            FROM parties
+            WHERE id = $1
+            "#,
+            id
+        )
+        .fetch_optional(&self.pool)
+        .await?;
+
+        if let Some(row) = row {
+            let team_rows = sqlx::query!(
+                r#"
+                SELECT t.id, t.community_id, t.enabled, t.name, t.created_at, t.updated_at 
+                FROM teams t 
+                INNER JOIN party_teams pt ON pt.team_id = t.id 
+                WHERE pt.party_id = $1
+                "#,
+                row.id
+            )
+            .fetch_all(&self.pool)
+            .await?;
+
+            let mut teams = Vec::new();
+            for t in team_rows {
+                let players = self.fetch_team_players(t.community_id, t.id).await?;
+                teams.push(Team {
+                    id: t.id,
+                    community_id: t.community_id,
+                    enabled: t.enabled,
+                    name: t.name,
+                    created_at: t.created_at,
+                    updated_at: t.updated_at,
+                    players,
+                });
+            }
+
+            Ok(Some(Party {
+                id: row.id,
+                community_id: row.community_id,
+                game_name: row.game_name.unwrap_or_default(),
+                team_winner_id: row.team_winner_id,
+                finished_at: row.finished_at,
+                created_at: row.created_at,
+                updated_at: row.updated_at,
+                teams,
+                enabled: row.enabled,
+            }))
+        } else {
+            Ok(None)
+        }
+    }
+
+    async fn save(&self, party: &Party) -> anyhow::Result<()> {
+        sqlx::query!(
+            r#"
+            UPDATE parties 
+            SET game_name = $1, team_winner_id = $2, finished_at = $3, enabled = $4, updated_at = $5
+            WHERE id = $6
+            "#,
+            party.game_name,
+            party.team_winner_id,
+            party.finished_at,
+            party.enabled,
+            party.updated_at,
+            party.id
+        )
+        .execute(&self.pool)
+        .await?;
+        Ok(())
     }
 }

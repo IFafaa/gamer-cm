@@ -42,15 +42,11 @@ impl<TR: TeamRepository, CR: CommunityRepository, PR: PartyRepository>
                     StatusCode::INTERNAL_SERVER_ERROR,
                     ApiErrorResponse::new("Failed to fetch community".to_string()),
                 )
-            })?;
-
-        if community.is_none() {
-            return Err((
+            })?
+            .ok_or((
                 StatusCode::BAD_REQUEST,
                 ApiErrorResponse::new("Community not found".to_string()),
-            ));
-        }
-        let community = community.unwrap();
+            ))?;
 
         let teams = self
             .team_repository

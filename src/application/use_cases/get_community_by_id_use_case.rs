@@ -31,16 +31,11 @@ impl<R: CommunityRepository> GetCommunityByIdUseCase<R> {
                     StatusCode::INTERNAL_SERVER_ERROR,
                     ApiErrorResponse::new("Internal Server Error".to_string()),
                 )
-            })?;
-
-        if community.is_none() {
-            return Err((
+            })?
+            .ok_or((
                 StatusCode::NOT_FOUND,
                 ApiErrorResponse::new("Community not found".to_string()),
-            ));
-        }
-
-        let community = community.unwrap();
+            ))?;
 
         let result = IResultGetCommunity::new(community);
         Ok(ApiResponse::success(result))

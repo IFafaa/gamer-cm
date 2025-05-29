@@ -31,6 +31,7 @@ impl Community {
 
     pub fn disable(&mut self) {
         self.enabled = false;
+        self.updated_at = DateTime::now();
     }
 
     pub fn is_enabled(&self) -> bool {

@@ -32,6 +32,7 @@ impl Team {
 
     pub fn add_player(&mut self, player: Player) {
         self.players.push(player);
+        self.updated_at = DateTime::now();
     }
 }
 

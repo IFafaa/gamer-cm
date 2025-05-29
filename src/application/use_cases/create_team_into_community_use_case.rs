@@ -29,7 +29,7 @@ impl<TR: TeamRepository, CR: CommunityRepository> CreateTeamIntoCommunityUseCase
     ) -> Result<(), (StatusCode, ApiErrorResponse)> {
         let already_exists = self
             .team_repository
-            .exists(dto.nickname.clone(), dto.community_id)
+            .exists(dto.name.clone(), dto.community_id)
             .await
             .map_err(|_| {
                 (
@@ -53,16 +53,13 @@ impl<TR: TeamRepository, CR: CommunityRepository> CreateTeamIntoCommunityUseCase
                     StatusCode::INTERNAL_SERVER_ERROR,
                     ApiErrorResponse::new("Internal server error".to_string()),
                 )
-            })?;
-
-        if community.is_none() {
-            return Err((
+            })?
+            .ok_or((
                 StatusCode::NOT_FOUND,
                 ApiErrorResponse::new("Community not found".to_string()),
-            ));
-        }
+            ))?;
 
-        let team = Team::new(dto.nickname, dto.community_id);
+        let team = Team::new(dto.name, community.id);
         self.team_repository.insert(&team).await.map_err(|_| {
             (
                 StatusCode::INTERNAL_SERVER_ERROR,

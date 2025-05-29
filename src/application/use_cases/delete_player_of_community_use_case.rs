@@ -16,25 +16,20 @@ impl<R: PlayerRepository> DeletePlayerOfCommunityUseCase<R> {
     }
 
     pub async fn execute(&self, player_id: i32) -> Result<(), (StatusCode, ApiErrorResponse)> {
-        let player: Option<Player> =
-            self.player_repository
-                .get_by_id(player_id)
-                .await
-                .map_err(|_| {
-                    (
-                        StatusCode::INTERNAL_SERVER_ERROR,
-                        ApiErrorResponse::new("Internal server error".to_string()),
-                    )
-                })?;
-
-        if player.is_none() {
-            return Err((
+        let mut player = self
+            .player_repository
+            .get_by_id(player_id)
+            .await
+            .map_err(|_| {
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    ApiErrorResponse::new("Internal server error".to_string()),
+                )
+            })?
+            .ok_or((
                 StatusCode::NOT_FOUND,
                 ApiErrorResponse::new("Player not found".to_string()),
-            ));
-        }
-
-        let mut player = player.unwrap();
+            ))?;
 
         if !player.is_enabled() {
             return Err((

@@ -10,8 +10,10 @@ pub struct Party {
     pub game_name: String,
     pub teams: Vec<Team>,
     pub team_winner_id: Option<i32>,
+    pub finished_at: Option<PrimitiveDateTime>,
     pub created_at: PrimitiveDateTime,
     pub updated_at: PrimitiveDateTime,
+    pub enabled: bool,
 }
 
 impl Party {
@@ -22,19 +24,39 @@ impl Party {
             teams,
             team_winner_id: None,
             game_name,
+            finished_at: None,
             created_at: DateTime::now(),
             updated_at: DateTime::now(),
+            enabled: true,
         }
+    }
+
+    pub fn end(&mut self, winner_team_id: Option<i32>) {
+        self.team_winner_id = winner_team_id;
+        self.finished_at = Some(DateTime::now());
+        self.updated_at = DateTime::now();
+    }
+
+    pub fn is_finished(&self) -> bool {
+        self.finished_at.is_some()
+    }
+
+    pub fn disable(&mut self) {
+        self.enabled = false;
+        self.updated_at = DateTime::now();
+    }
+
+    pub fn is_enabled(&self) -> bool {
+        self.enabled
     }
 }
 
 #[async_trait::async_trait]
 pub trait PartyRepository: Send + Sync {
     async fn insert(&self, party: &Party) -> anyhow::Result<()>;
-    async fn get_by_params(
-        &self,
-        params: IGetPartiesByParams,
-    ) -> anyhow::Result<Vec<Party>>;
+    async fn get_by_params(&self, params: IGetPartiesByParams) -> anyhow::Result<Vec<Party>>;
+    async fn get_by_id(&self, id: i32) -> anyhow::Result<Option<Party>>;
+    async fn save(&self, party: &Party) -> anyhow::Result<()>;
 }
 
 pub struct IGetPartiesByParams {
