@@ -24,7 +24,9 @@ async fn main() {
 
     let app = presentation::route::create_routes(app_state).layer(cors);
 
-    println!("🚀 Server started successfully");
+    let addr = listener.local_addr().expect("Failed to get local address");
+    println!("🚀 Server started successfully!");
+    println!("🌐 Listening on http://{}", addr);
     axum::serve(listener, app)
         .await
         .expect("Failed to start server");
