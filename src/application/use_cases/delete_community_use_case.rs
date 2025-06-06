@@ -1,9 +1,6 @@
 use axum::http::StatusCode;
 
-use crate::{
-    domain::community::{Community, CommunityRepository},
-    shared::api_error::ApiErrorResponse,
-};
+use crate::{domain::community::CommunityRepository, shared::api_error::ApiErrorResponse};
 use std::sync::Arc;
 
 pub struct DeleteCommunityUseCase<R: CommunityRepository> {

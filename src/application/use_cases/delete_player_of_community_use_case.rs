@@ -1,9 +1,6 @@
 use axum::http::StatusCode;
 
-use crate::{
-    domain::player::{Player, PlayerRepository},
-    shared::api_error::ApiErrorResponse,
-};
+use crate::{domain::player::PlayerRepository, shared::api_error::ApiErrorResponse};
 use std::sync::Arc;
 
 pub struct DeletePlayerOfCommunityUseCase<R: PlayerRepository> {

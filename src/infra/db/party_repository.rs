@@ -4,7 +4,6 @@ use sqlx::{PgPool, types::JsonValue};
 use time::PrimitiveDateTime;
 
 use crate::domain::{
-    community,
     party::{IGetPartiesByParams, Party, PartyRepository},
     player::Player,
     team::Team,
