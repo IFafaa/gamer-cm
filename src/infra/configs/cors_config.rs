@@ -5,6 +5,7 @@ pub fn cors_config() -> Result<CorsLayer, Box<dyn std::error::Error>> {
     let cors = CorsLayer::new()
         .allow_origin(Any)
         .allow_methods(Any)
-        .allow_headers([http::header::CONTENT_TYPE]);
+        .allow_headers(Any);
+
     Ok(cors)
 }
