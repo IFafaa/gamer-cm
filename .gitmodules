@@ -1,0 +1,6 @@
+[submodule "gamer-cm-api"]
+	path = gamer-cm-api
+	url = https://github.com/IFafaa/gamer-cm-api.git
+[submodule "gamer-cm-front"]
+	path = gamer-cm-front
+	url = https://github.com/IFafaa/gamer-cm-front.git
